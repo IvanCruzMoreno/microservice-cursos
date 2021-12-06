@@ -2,6 +2,7 @@ package com.ivanmoreno.cursos.services;
 
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ivanmoreno.commons.services.CommonServiceImpl;
 import com.ivanmoreno.cursos.models.entity.Curso;
@@ -12,7 +13,12 @@ public class CursoServiceImpl extends CommonServiceImpl<Curso, CursoRepository> 
 
 	public CursoServiceImpl(CursoRepository repository) {
 		super(repository);
-		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Curso findCursoByAlumnoId(Long id) {
+		return this.repository.findCursoByAlumnoId(id);
 	}
 
 }
