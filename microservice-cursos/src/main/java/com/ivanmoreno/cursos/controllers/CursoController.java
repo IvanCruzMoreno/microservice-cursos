@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ivanmoreno.commons.controllers.CommonController;
 import com.ivanmoreno.commons.models.entity.Alumno;
+import com.ivanmoreno.commons.models.entity.Examen;
 import com.ivanmoreno.cursos.models.entity.Curso;
 import com.ivanmoreno.cursos.services.CursoService;
 
@@ -52,7 +53,7 @@ public class CursoController extends CommonController<Curso, CursoService>{
 	}
 	
 	@PutMapping("/{id}/eliminar-alumno")
-	public ResponseEntity<?> addAlumnosToCurso(@RequestBody Alumno alumno, @PathVariable Long id) {
+	public ResponseEntity<?> removeAlumnosToCurso(@RequestBody Alumno alumno, @PathVariable Long id) {
 		
 		Optional<Curso> cursoOpt = this.service.findById(id);
 		
@@ -72,5 +73,38 @@ public class CursoController extends CommonController<Curso, CursoService>{
 	public ResponseEntity<?> findByAlumnoId(@PathVariable Long id) {
 		Curso curso = this.service.findCursoByAlumnoId(id);
 		return ResponseEntity.ok(curso);
+	}
+	
+	@PutMapping("/{id}/asignar-examenes")
+	public ResponseEntity<?> addExamenesToCurso(@RequestBody List<Examen> examenes, @PathVariable Long id) {
+		
+		Optional<Curso> cursoOpt = this.service.findById(id);
+		
+		if(!cursoOpt.isPresent()) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		Curso cursoDB = cursoOpt.get();
+		examenes.forEach(cursoDB::addExamen);
+		
+		Curso cursoSaved = this.service.save(cursoDB);
+		return ResponseEntity.status(HttpStatus.CREATED).body(cursoSaved);
+	}
+	
+	@PutMapping("/{id}/eliminar-examen")
+	public ResponseEntity<?> removeExamenesToCurso(@RequestBody Examen examen, @PathVariable Long id) {
+		
+		Optional<Curso> cursoOpt = this.service.findById(id);
+		
+		if(!cursoOpt.isPresent()) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		Curso cursoDB = cursoOpt.get();
+		
+		cursoDB.removeExamen(examen);
+		
+		Curso cursoSaved = this.service.save(cursoDB);
+		return ResponseEntity.status(HttpStatus.CREATED).body(cursoSaved);
 	}
 }

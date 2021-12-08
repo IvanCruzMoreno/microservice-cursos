@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
@@ -18,6 +19,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.ivanmoreno.commons.models.entity.Alumno;
+import com.ivanmoreno.commons.models.entity.Examen;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -42,6 +44,9 @@ public class Curso {
 	@JoinColumn(name = "curso_id", referencedColumnName = "id")
 	private List<Alumno> alumnos;
 	
+	@ManyToMany(fetch = FetchType.LAZY)
+	private List<Examen> examenes;
+	
 	@PrePersist
 	public void prePersist() {
 		this.createAt = new Date();
@@ -49,6 +54,7 @@ public class Curso {
 	
 	public Curso() {
 		this.alumnos = new ArrayList<>();
+		this.examenes = new ArrayList<>();
 	}
 	
 	public void addAlumno(Alumno alumno) {
@@ -57,5 +63,13 @@ public class Curso {
 	
 	public void removeAlumno(Alumno alumno) {
 		this.alumnos.remove(alumno);
+	}
+	
+	public void addExamen(Examen examen) {
+		this.examenes.add(examen);
+	}
+	
+	public void removeExamen(Examen examen) {
+		this.examenes.remove(examen);
 	}
 }
