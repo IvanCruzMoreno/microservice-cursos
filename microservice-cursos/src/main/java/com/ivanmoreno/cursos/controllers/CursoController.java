@@ -2,6 +2,7 @@ package com.ivanmoreno.cursos.controllers;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -80,6 +81,24 @@ public class CursoController extends CommonController<Curso, CursoService>{
 	@GetMapping("/alumno/{id}")
 	public ResponseEntity<?> findByAlumnoId(@PathVariable Long id) {
 		Curso curso = this.service.findCursoByAlumnoId(id);
+		
+		if(curso != null) {
+			
+			List<Long> examenesIds = this.service.obtenerExamenesIdsByAlumnoId(id);
+			
+			List<Examen> examenes = curso.getExamenes()
+					.stream()
+					.map(examen -> {
+						if(examenesIds.contains(examen.getId())) {
+							examen.setRespondido(true);
+						}
+						return examen;
+					})
+					.collect(Collectors.toList());
+			
+			curso.setExamenes(examenes);
+		}
+		
 		return ResponseEntity.ok(curso);
 	}
 	
@@ -115,4 +134,6 @@ public class CursoController extends CommonController<Curso, CursoService>{
 		Curso cursoSaved = this.service.save(cursoDB);
 		return ResponseEntity.status(HttpStatus.CREATED).body(cursoSaved);
 	}
+	
+	
 }
