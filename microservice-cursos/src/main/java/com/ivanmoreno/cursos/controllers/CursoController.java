@@ -20,6 +20,7 @@ import com.ivanmoreno.commons.controllers.CommonController;
 import com.ivanmoreno.commons.models.entity.Alumno;
 import com.ivanmoreno.commons.models.entity.Examen;
 import com.ivanmoreno.cursos.models.entity.Curso;
+import com.ivanmoreno.cursos.models.entity.CursoAlumno;
 import com.ivanmoreno.cursos.services.CursoService;
 
 @RestController
@@ -55,7 +56,13 @@ public class CursoController extends CommonController<Curso, CursoService>{
 		}
 		
 		Curso cursoDB = cursoOpt.get();
-		alumnos.forEach(alumno -> cursoDB.addAlumno(alumno));
+		alumnos.forEach(alumno -> {
+			CursoAlumno cursoAlumno = new CursoAlumno();
+			cursoAlumno.setAlumnoId(alumno.getId());
+			cursoAlumno.setCurso(cursoDB);
+			
+			cursoDB.addCursoAlumno(cursoAlumno);
+		});
 		
 		Curso cursoSaved = this.service.save(cursoDB);
 		return ResponseEntity.status(HttpStatus.CREATED).body(cursoSaved);
@@ -72,7 +79,11 @@ public class CursoController extends CommonController<Curso, CursoService>{
 		
 		Curso cursoDB = cursoOpt.get();
 		
-		cursoDB.removeAlumno(alumno);
+		CursoAlumno cursoAlumno = new CursoAlumno();
+		cursoAlumno.setAlumnoId(alumno.getId());
+		cursoAlumno.setCurso(null);
+		
+		cursoDB.removeCursoAlumno(cursoAlumno);
 		
 		Curso cursoSaved = this.service.save(cursoDB);
 		return ResponseEntity.status(HttpStatus.CREATED).body(cursoSaved);
