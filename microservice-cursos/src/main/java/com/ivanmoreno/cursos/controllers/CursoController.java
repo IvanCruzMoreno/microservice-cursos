@@ -26,6 +26,53 @@ import com.ivanmoreno.cursos.services.CursoService;
 @RestController
 public class CursoController extends CommonController<Curso, CursoService>{
 
+	@GetMapping
+	@Override
+	public ResponseEntity<?> showAll() {
+		List<Curso> entities = ((List<Curso>) service.findAll())
+				.stream()
+				.map(this::addAlumnoToCursoByCursoAlumnos)
+				.collect(Collectors.toList());
+		
+		return ResponseEntity.ok().body(entities);
+	}
+	
+	private Curso addAlumnoToCursoByCursoAlumnos(Curso curso) {
+		
+		curso.getCursoAlumnos().forEach(
+				cursoAlumno -> {
+					Alumno alumno = new Alumno();
+					alumno.setId(cursoAlumno.getAlumnoId());
+					curso.addAlumno(alumno);
+					});
+		
+		return curso;
+	}
+	
+	@GetMapping("/{id}")
+	@Override
+	public ResponseEntity<?> showAlumno(@PathVariable Long id) {
+		Optional<Curso> entity = service.findById(id);
+		
+		if(!entity.isPresent()) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		Curso curso = entity.get();
+		if(!curso.getCursoAlumnos().isEmpty()) {
+			
+			List<Long> idsAlumnos = curso.getCursoAlumnos()
+					.stream()
+					.map(CursoAlumno::getAlumnoId)
+					.collect(Collectors.toList());
+			
+			List<Alumno> alumnos = service.obtenerAlumnosPorIds(idsAlumnos);
+			curso.setAlumnos(alumnos);
+		}
+		
+		return ResponseEntity.ok().body(curso);
+	}
+	
 	@PutMapping("/{id}")
 	public ResponseEntity<?> edit(@Valid @RequestBody Curso curso, BindingResult result, @PathVariable Long id) {
 		
