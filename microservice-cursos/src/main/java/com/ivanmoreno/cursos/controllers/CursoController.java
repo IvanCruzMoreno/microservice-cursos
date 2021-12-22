@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -71,6 +73,15 @@ public class CursoController extends CommonController<Curso, CursoService>{
 		}
 		
 		return ResponseEntity.ok().body(curso);
+	}
+	
+	@GetMapping("/page")
+	@Override
+	public ResponseEntity<?> showAll(Pageable pageable) {
+		Page<Curso> cursos = service.findAll(pageable)
+				.map(this::addAlumnoToCursoByCursoAlumnos);
+		
+		return ResponseEntity.ok().body(cursos);
 	}
 	
 	@PutMapping("/{id}")
